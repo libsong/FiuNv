@@ -150,54 +150,43 @@ again:
 void
 udp_input(struct pbuf *p, struct netif *inp)
 {
-  struct udp_hdr *udphdr;
-  struct udp_pcb *pcb, *prev;
-  struct udp_pcb *uncon_pcb;
-  struct ip_hdr *iphdr;
-  u16_t src, dest;
-  u8_t local_match;
-  u8_t broadcast;
+	struct udp_hdr *udphdr;
+	struct udp_pcb *pcb, *prev;
+	struct udp_pcb *uncon_pcb;
+	struct ip_hdr *iphdr;
+	u16_t src, dest;
+	u8_t local_match;
+	u8_t broadcast;
 
-  PERF_START;
+	PERF_START;
 
-  UDP_STATS_INC(udp.recv);
+	UDP_STATS_INC(udp.recv);
 
-  iphdr = (struct ip_hdr *)p->payload;
+	iphdr = (struct ip_hdr *)p->payload;
 
   /* Check minimum length (IP header + UDP header)
    * and move payload pointer to UDP header */
-  if (p->tot_len < (IPH_HL(iphdr) * 4 + UDP_HLEN) || pbuf_header(p, -(s16_t)(IPH_HL(iphdr) * 4))) {
-    /* drop short packets */
-    LWIP_DEBUGF(UDP_DEBUG,
-                ("udp_input: short UDP datagram (%"U16_F" bytes) discarded\n", p->tot_len));
-    UDP_STATS_INC(udp.lenerr);
-    UDP_STATS_INC(udp.drop);
-    snmp_inc_udpinerrors();
-    pbuf_free(p);
-    goto end;
-  }
+	if (p->tot_len < (IPH_HL(iphdr) * 4 + UDP_HLEN) || pbuf_header(p, -(s16_t)(IPH_HL(iphdr) * 4))) {
+		/* drop short packets */
+		LWIP_DEBUGF(UDP_DEBUG,
+					("udp_input: short UDP datagram (%"U16_F" bytes) discarded\n", p->tot_len));
+		UDP_STATS_INC(udp.lenerr);
+		UDP_STATS_INC(udp.drop);
+		snmp_inc_udpinerrors();
+		pbuf_free(p);
+		goto end;
+	}
 
-  udphdr = (struct udp_hdr *)p->payload;
+	udphdr = (struct udp_hdr *)p->payload;
 
   /* is broadcast packet ? */
-  broadcast = ip_addr_isbroadcast(&current_iphdr_dest, inp);
+	broadcast = ip_addr_isbroadcast(&current_iphdr_dest, inp);
 
-  LWIP_DEBUGF(UDP_DEBUG, ("udp_input: received datagram of length %"U16_F"\n", p->tot_len));
-
-  /* convert src and dest ports to host byte order */
-  src = ntohs(udphdr->src);
-  dest = ntohs(udphdr->dest);
+	/* convert src and dest ports to host byte order */
+	src = ntohs(udphdr->src);//客户端的port
+	dest = ntohs(udphdr->dest);//发到本地的port
 
   udp_debug_print(udphdr);
-
-  /* print the UDP source and destination */
-  LWIP_DEBUGF(UDP_DEBUG,
-              ("udp (%"U16_F".%"U16_F".%"U16_F".%"U16_F", %"U16_F") <-- "
-               "(%"U16_F".%"U16_F".%"U16_F".%"U16_F", %"U16_F")\n",
-               ip4_addr1_16(&iphdr->dest), ip4_addr2_16(&iphdr->dest),
-               ip4_addr3_16(&iphdr->dest), ip4_addr4_16(&iphdr->dest), ntohs(udphdr->dest),
-               ip4_addr1_16(&iphdr->src), ip4_addr2_16(&iphdr->src),
-               ip4_addr3_16(&iphdr->src), ip4_addr4_16(&iphdr->src), ntohs(udphdr->src)));
 
 #if LWIP_DHCP
   pcb = NULL;
@@ -237,7 +226,7 @@ udp_input(struct pbuf *p, struct netif *inp)
                    ip4_addr1_16(&pcb->remote_ip), ip4_addr2_16(&pcb->remote_ip),
                    ip4_addr3_16(&pcb->remote_ip), ip4_addr4_16(&pcb->remote_ip), pcb->remote_port));
 
-      /* compare PCB local addr+port to UDP destination addr+port */
+      /* compare PCB local addr+port to UDP destination addr+port *///比较发来的和本地的是否一致
       if (pcb->local_port == dest) {
         if (
            (!broadcast && ip_addr_isany(&pcb->local_ip)) ||
@@ -263,10 +252,8 @@ udp_input(struct pbuf *p, struct netif *inp)
         }
       }
       /* compare PCB remote addr+port to UDP source addr+port */
-      if ((local_match != 0) &&
-          (pcb->remote_port == src) &&
-          (ip_addr_isany(&pcb->remote_ip) ||
-           ip_addr_cmp(&(pcb->remote_ip), &current_iphdr_src))) {
+      //if ((local_match != 0) && /*(pcb->remote_port == src) &&*/ (ip_addr_isany(&pcb->remote_ip) /*|| ip_addr_cmp(&(pcb->remote_ip), &current_iphdr_src))*/) {
+	if ((local_match != 0) && (ip_addr_isany(&pcb->remote_ip))) {
         /* the first fully matching PCB */
         if (prev != NULL) {
           /* move the pcb to the front of udp_pcbs so that is

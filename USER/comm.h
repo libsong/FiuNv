@@ -1,41 +1,61 @@
 #pragma once
 
-//leave factory port
-#define LOCAL_UDPPORT 10000
+#include "sys.h"
 
-//cmd
-#define COMM_LEN 22	//hoast to slave communication test cmd len
-typedef enum {
-  COMM_CMD_TEST,
-  COMM_CMD_RELAY,
-  COMM_CMD_IP = 0xc8,
-  COMM_CMD_GW = 0xc9,
-}COMM_CMD;
+#define setbit(x,y) x|=(1<<y) //XµÄY ÖÃ 1
+#define clrbit(x,y) x&=~(1<<y) //XµÄYÇå0
 
-//mcu enum
-//typedef enum {
-//  STM32F0,
-//  STM32F1,
-//  STM32F2,
-//  STM32F3,
-//  STM32F4,
-//  STM32F7,
-//  STM32L0,
-//  STM32L1,
-//  STM32L4,
-//  STM32H7,
-//}MCUTypedef;
-
-//extern 			u8 g_macid[6];
-//extern 			u32 mcu_idAddr[];
-//extern void GetSTM32MCUID(unsigned int *id,MCUTypedef type);
-
-//flash addr to r/w 
-#define FLASH_PROC_SIZE 80
-#define FLASH_PROCHEAD_SIZE 48 
+//flash addr to r/w ip...
 #define FLASH_PROCHEAD  0X080F0000   //proc addr start ,sector11
-#define FLASH_IP_PORT  (FLASH_PROCHEAD + 0X40)	//conntent start addr ,(ip+port+netmask+gw)
-#define FLASH_NM_GW (FLASH_PROCHEAD + 0X48)
+#define FLASH_PROCHEAD_SIZE 48
+#define FLASH_PROC_SIZE 64
+
+#define FLASH_IP_PORT  (FLASH_PROCHEAD + 0X30)	//conntent start addr ,(ip+port+netmask+gw)
+
+//flash addr to r/w for REMOTE ID
+#define FLASH_PROCHEAD_CAN  (FLASH_PROCHEAD + 0X40)  
+//flash addr to r/w for LOCAL ID
+#define FLASH_PROCHEAD_CAN_r  (FLASH_PROCHEAD + 0X80)  
+//flash addr to r/w for work mode
+#define FLASH_PROCHEAD_WM  (FLASH_PROCHEAD + 0XC0)   
+
+//
+typedef enum {
+	COMM_CMD_TEST,
+
+	COMM_CMD_RELAY_CONF,//hvs
+	COMM_CMD_RELAY_ACTIVE,//hvs
+	COMM_CMD_RELAY_RESET,//hvs
+	COMM_CMD_RELAY_ADC,//hvs GET VAL CUR
+
+	COMM_CMD_RELAY_PWR,//pdo	
+	
+	COMM_CMD_RELAY_FIU_ACT,//NEW fiu
+	
+	COMM_CMD_IP = 0xc8,//ip port gw nm, v1.1.0 fiu mofigy ip info. by mulcast
+	COMM_CMD_UID = 0xc9, //give mcu uid
+	COMM_CMD_SFRST = 0xca,//mcu soft reset,STM32 mcu
+}
+COMM_CMD;
+
+#define COMM_LEN 128 //MAX LEN COMM WITH THE WIN HOST , when FIU the packet max 12*8 + 27 = 123
+#define CANBUFDATALEN 200   //8*n
+#define ERRORNUM 80
+//
+extern uint8_t 	g_IpAllModified;
+extern uint16_t 	g_LocalUdpPort;
+extern uint8_t 	g_IP_ADDR0;   
+extern uint8_t 	g_IP_ADDR1;   
+extern uint8_t 	g_IP_ADDR2;   
+extern uint8_t 	g_IP_ADDR3; 
+extern uint8_t 	g_NETMASK_ADDR0;   
+extern uint8_t 	g_NETMASK_ADDR1;   
+extern uint8_t 	g_NETMASK_ADDR2;   
+extern uint8_t 	g_NETMASK_ADDR3;
+extern uint8_t 	g_GW_ADDR0;   
+extern uint8_t 	g_GW_ADDR1;   
+extern uint8_t 	g_GW_ADDR2;   
+extern uint8_t 	g_GW_ADDR3;
 
 
 

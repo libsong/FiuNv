@@ -94,3 +94,5 @@
 ..\obj\mulcast.o: ..\LWIP\lwip-1.4.1\src\include\lwip/def.h
 ..\obj\mulcast.o: ..\LWIP\lwip-1.4.1\src\include\ipv4\lwip/ip.h
 ..\obj\mulcast.o: ..\LWIP\lwip-1.4.1\src\include\ipv4\lwip/igmp.h
+..\obj\mulcast.o: ..\USER\comm.h
+..\obj\mulcast.o: ..\SYSTEM\sys\sys.h

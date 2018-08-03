@@ -15,6 +15,11 @@
 #include "usart.h" 
 #include "pcf8574.h"
 #include <stdio.h>
+
+#include "comm.h"
+#include "mulcast.h"
+   
+extern struct mcuinfo g_MCUinfo; 
    
 uint32_t ARPTimer = 0;
 __lwip_dev lwipdev;						//lwip控制结构体 
@@ -78,35 +83,63 @@ void lwip_comm_mem_free(void)
 //lwipx:lwip控制结构体指针
 void lwip_comm_default_ip_set(__lwip_dev *lwipx)
 {
-	u32 sn0;
-	sn0=*(vu32*)(0x1FFF7A10);//获取STM32的唯一ID的前24位作为MAC地址后三字节
+	u32 sn0,sn1,sn2;
+	g_MCUinfo.mcuUID[0] = sn0 = *(vu32*)(0x1FFF7A10);//获取STM32的唯一ID的前24位作为MAC地址后三字节
+	g_MCUinfo.mcuUID[1] = sn1= *(vu32*)(0x1FFF7A10 + 4);
+	g_MCUinfo.mcuUID[2] = sn2= *(vu32*)(0x1FFF7A10 + 8);
+	
+	//printf("mcuUID %x - %x - %x\n",g_MCUinfo.mcuUID[0],g_MCUinfo.mcuUID[1],g_MCUinfo.mcuUID[2]);
+	
 	//默认远端IP为:192.168.1.100
 //	lwipx->remoteip[0]=192;	
 //	lwipx->remoteip[1]=168;
 //	lwipx->remoteip[2]=2;
 //	lwipx->remoteip[3]=102;
+	
 	//MAC地址设置(高三字节固定为:2.0.0,低三字节用STM32唯一ID)
 	lwipx->mac[0]=2;//高三字节(IEEE称之为组织唯一ID,OUI)地址固定为:2.0.0
 	lwipx->mac[1]=0;
-	lwipx->mac[2]=0;
+	lwipx->mac[2]=(sn0>>24)&0XFF;
 	lwipx->mac[3]=(sn0>>16)&0XFF;//低三字节用STM32的唯一ID
 	lwipx->mac[4]=(sn0>>8)&0XFFF;
 	lwipx->mac[5]=sn0&0XFF; 
+	g_MCUinfo.mcuMAC[0] = lwipx->mac[0];
+	g_MCUinfo.mcuMAC[1] = lwipx->mac[1];
+	g_MCUinfo.mcuMAC[2] = lwipx->mac[2];
+	g_MCUinfo.mcuMAC[3] = lwipx->mac[3];
+	g_MCUinfo.mcuMAC[4] = lwipx->mac[4];
+	g_MCUinfo.mcuMAC[5] = lwipx->mac[5];
+	
 	//默认本地IP为:192.168.1.30
-	lwipx->ip[0]=192;	
-	lwipx->ip[1]=168;
-	lwipx->ip[2]=2;
-	lwipx->ip[3]=30;
+	lwipx->ip[0]=g_IP_ADDR0;	
+	lwipx->ip[1]=g_IP_ADDR1;
+	lwipx->ip[2]=g_IP_ADDR2;
+	lwipx->ip[3]=g_IP_ADDR3;
+	g_MCUinfo.mcuIP[0] = lwipx->ip[0];
+	g_MCUinfo.mcuIP[1] = lwipx->ip[1];
+	g_MCUinfo.mcuIP[2] = lwipx->ip[2];
+	g_MCUinfo.mcuIP[3] = lwipx->ip[3];
+	
 	//默认子网掩码:255.255.255.0
-	lwipx->netmask[0]=255;	
-	lwipx->netmask[1]=255;
-	lwipx->netmask[2]=255;
-	lwipx->netmask[3]=0;
+	lwipx->netmask[0]=g_NETMASK_ADDR0;	
+	lwipx->netmask[1]=g_NETMASK_ADDR1;
+	lwipx->netmask[2]=g_NETMASK_ADDR2;
+	lwipx->netmask[3]=g_NETMASK_ADDR3;
+	g_MCUinfo.mcuNetMask[0] = lwipx->netmask[0];
+	g_MCUinfo.mcuNetMask[1] = lwipx->netmask[1];
+	g_MCUinfo.mcuNetMask[2] = lwipx->netmask[2];
+	g_MCUinfo.mcuNetMask[3] = lwipx->netmask[3];
+	
 	//默认网关:192.168.1.1
-	lwipx->gateway[0]=192;	
-	lwipx->gateway[1]=168;
-	lwipx->gateway[2]=2;
-	lwipx->gateway[3]=1;	
+	lwipx->gateway[0]=g_GW_ADDR0;	
+	lwipx->gateway[1]=g_GW_ADDR1;
+	lwipx->gateway[2]=g_GW_ADDR2;
+	lwipx->gateway[3]=g_GW_ADDR3;	
+	g_MCUinfo.mcuGW[0] = lwipx->gateway[0];
+	g_MCUinfo.mcuGW[1] = lwipx->gateway[1];
+	g_MCUinfo.mcuGW[2] = lwipx->gateway[2];
+	g_MCUinfo.mcuGW[3] = lwipx->gateway[3];
+	
 	lwipx->dhcpstatus=0;//没有DHCP	
 } 
 

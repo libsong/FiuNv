@@ -17,6 +17,8 @@
 u8 PCF8574_Init(void)
 {
     u8 temp=0;
+
+#if 0	
     GPIO_InitTypeDef GPIO_Initure;
     __HAL_RCC_GPIOB_CLK_ENABLE();           //使能GPIOB时钟
 	
@@ -25,6 +27,7 @@ u8 PCF8574_Init(void)
     GPIO_Initure.Pull=GPIO_PULLUP;          //上拉
     GPIO_Initure.Speed=GPIO_SPEED_HIGH;     //高速
     HAL_GPIO_Init(GPIOB,&GPIO_Initure);     //初始化
+#endif
     IIC_Init();					            //IIC初始化 	
 	//检查PCF8574是否在位
     IIC_Start();    	 	   

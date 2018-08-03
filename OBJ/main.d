@@ -105,3 +105,5 @@
 ..\obj\main.o: ..\LWIP\lwip-1.4.1\src\include\lwip/udp.h
 ..\obj\main.o: ..\LWIP\lwip-1.4.1\src\include\ipv4\lwip/ip.h
 ..\obj\main.o: ..\LWIP\lwip-1.4.1\src\include\ipv4\lwip/igmp.h
+..\obj\main.o: comm.h
+..\obj\main.o: ..\HARDWARE\CAN\can.h

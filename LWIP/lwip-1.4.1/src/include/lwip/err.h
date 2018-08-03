@@ -71,6 +71,8 @@ typedef s8_t err_t;
 
 #define ERR_IF         -15   /* Low-level netif error    */
 
+#define ERR_KLDATA     -16 //for kl proc data
+
 
 #ifdef LWIP_DEBUG
 extern const char *lwip_strerr(err_t err);

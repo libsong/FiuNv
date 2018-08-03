@@ -118,3 +118,6 @@
 ..\obj\lwip_comm.o: ..\SYSTEM\usart\usart.h
 ..\obj\lwip_comm.o: ..\HARDWARE\PCF8574\pcf8574.h
 ..\obj\lwip_comm.o: ..\HARDWARE\IIC\myiic.h
+..\obj\lwip_comm.o: ..\USER\comm.h
+..\obj\lwip_comm.o: ..\LWIP\udpecho\mulcast.h
+..\obj\lwip_comm.o: ..\LWIP\lwip-1.4.1\src\include\lwip/udp.h

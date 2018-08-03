@@ -13,6 +13,12 @@
 //Copyright(C) 广州市星翼电子科技有限公司 2014-2024
 //All rights reserved									  
 ////////////////////////////////////////////////////////////////////////////////// 	
-void TIM3_Init(u16 arr,u16 psc);
+extern TIM_HandleTypeDef TIM3_Handler;      //定时器句柄 
+extern TIM_HandleTypeDef TIM2_Handler; 
+extern TIM_HandleTypeDef TIM5_Handler; 
+
+void TIM3_Init(u16 arr,uint32_t psc);
+void TIM2_Init(uint32_t arr,uint16_t psc);
+void TIM5_Init(uint32_t arr,uint16_t psc);
 #endif
 

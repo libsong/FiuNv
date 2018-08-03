@@ -97,3 +97,8 @@
 ..\obj\udpecho.o: ..\LWIP\lwip-1.4.1\src\include\lwip/lwip_sys.h
 ..\obj\udpecho.o: ..\LWIP\arch/sys_arch.h
 ..\obj\udpecho.o: ..\USER\comm.h
+..\obj\udpecho.o: ..\LWIP\udpecho\mulcast.h
+..\obj\udpecho.o: ..\LWIP\lwip-1.4.1\src\include\lwip/udp.h
+..\obj\udpecho.o: ..\LWIP\lwip-1.4.1\src\include\lwip/netif.h
+..\obj\udpecho.o: ..\LWIP\lwip-1.4.1\src\include\ipv4\lwip/ip.h
+..\obj\udpecho.o: ..\LWIP\lwip-1.4.1\src\include\ipv4\lwip/igmp.h

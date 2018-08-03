@@ -37,208 +37,203 @@
 #include "err.h"
 #include "api.h"
 #include "comm.h"
+#include "mulcast.h"
+
+extern uint8_t 		g_HOSTCANDATABUF[CANBUFDATALEN];
+extern uint32_t 	g_DealDataCur;
+extern uint32_t 	g_IntrDataCur;
+extern int HostCanDataAnalysis(void);
+extern void HostCanDataAnalysisNoLoopBuf(uint8_t *data);
+   
+u8 FiuHostConfig[17] = {0};
+extern struct mcuinfo g_MCUinfo; 
 
 #if LWIP_NETCONN
 
-u16 LOCAL_UDPPORT_m = 10000;
-extern u8 g_IpAllModified;
+extern u8 		g_IpAllModified;
+extern u16 		g_LocalUdpPort;
+extern uint8_t 	g_Error;
 
-static struct netconn *conn;
-static struct netbuf  *buf;
-static struct ip_addr *addr;
-static unsigned short port;
+//static struct netconn 	*conn;
+static struct netbuf  	*buf;
+//static struct ip_addr 	*addr;
+//static unsigned short 	port;
 
+extern void STMFLASH_Read(u32 ReadAddr,u32 *pBuffer,u32 NumToRead);
+extern void STMFLASH_Write(u32 WriteAddr,u32 *pBuffer,u32 NumToWrite);
 
-/*-----------------------------------------------------------------------------------*/
+void FiuRelayPinActive(uint8_t *data, int len)	//  
+{
+	int i,loop = len/8;
+	
+	for (i=0;i<loop;i++) {
+		HostCanDataAnalysisNoLoopBuf(&data[i*8]);
+	}
+}
+
+void udp_echoserver_receive_callback(void *arg, struct udp_pcb *upcb, struct pbuf *p, ip_addr_t *addr, u16_t port)
+{
+  /* Tell the client that we have accepted it */
+	u8_t	tmp_crc = 0;
+	u8_t	tmp_buf[COMM_LEN];
+	u8_t	host_cmd = 0xff;
+	u8_t	host_len = 0;
+	s32_t   i;
+	err_t   recv_err = ERR_OK;
+	u8 		tmp_flash[FLASH_PROC_SIZE];
+
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+			//add our data deal proc start.
+	tmp_crc = 0;
+	memset(tmp_buf,0x0,COMM_LEN);					
+	memcpy(tmp_buf,p->payload, p->len);
+		
+	for (i = 0; i < 8; i++) {
+			if (tmp_buf[i] != 0xbe) {
+			recv_err = ERR_KLDATA;
+		}
+	}
+
+	if (recv_err == ERR_OK) 
+	{
+		host_cmd = tmp_buf[8];
+		host_len = tmp_buf[9];
+		for (i = 10; i < 10+host_len; i++) {
+		  tmp_crc += tmp_buf[i];
+		}
+//		if (tmp_crc != tmp_buf[10+host_len]) {
+//		  recv_err = ERR_KLDATA; 
+//		}
+	}
+
+	if (recv_err == ERR_OK) 
+	{
+		for (i = 11+host_len; i < 19+host_len; i++) {
+		  if (tmp_buf[i] != 0xff) {
+			recv_err = ERR_KLDATA;
+		  }
+		}
+	}
+	if (recv_err == ERR_OK) 
+	{
+		for (i = 19+host_len; i < 27+host_len; i++) {
+		  if (tmp_buf[i] != 0xed) {
+			recv_err = ERR_KLDATA;
+		  }
+		}
+	}	
+					
+	if (recv_err == ERR_OK) 
+	{
+		tmp_crc = 0;
+		
+		switch(host_cmd){
+		case COMM_CMD_TEST:
+			for (i = 10; i<10+host_len; i++) {
+				tmp_buf[i] += 1;
+				tmp_crc += tmp_buf[i];
+			}
+			tmp_buf[10+host_len] = tmp_crc;
+			memcpy(p->payload, tmp_buf, 27+host_len);
+		break;
+
+		case COMM_CMD_UID:
+					memcpy(&tmp_buf[10],&g_MCUinfo.mcuUID[0],12);
+					for (i = 10; i<10+host_len; i++) {
+						tmp_crc += tmp_buf[i];
+					}
+					tmp_buf[10+host_len] = tmp_crc;
+					memcpy(buf->p->payload, tmp_buf, 27+host_len);
+				break;
+				
+		case COMM_CMD_SFRST:
+			__set_FAULTMASK(1);
+			HAL_NVIC_SystemReset();
+		break;
+		
+			
+		case COMM_CMD_RELAY_FIU_ACT:
+			FiuRelayPinActive(&tmp_buf[10],host_len);
+		break;
+		
+			
+		case COMM_CMD_IP:
+			STMFLASH_Read(FLASH_PROCHEAD,(u32 *)tmp_flash,FLASH_PROC_SIZE/4);
+			for (i=0;i<FLASH_PROCHEAD_SIZE;i=i+2) {
+				tmp_flash[i] = 0xaa; 
+				tmp_flash[i+1] = 0x55;
+			}
+			
+			tmp_flash[64] = tmp_buf[10];
+			tmp_flash[65] = tmp_buf[11];
+			tmp_flash[66] = tmp_buf[12];
+			tmp_flash[67] = tmp_buf[13];
+			tmp_flash[68] = tmp_buf[14];
+			tmp_flash[69] = tmp_buf[15];
+			
+			tmp_flash[72] = tmp_buf[16];
+			tmp_flash[73] = tmp_buf[17];
+			tmp_flash[74] = tmp_buf[18];
+			tmp_flash[75] = tmp_buf[19];
+			tmp_flash[76] = tmp_buf[20];
+			tmp_flash[77] = tmp_buf[21];
+			tmp_flash[78] = tmp_buf[22];
+			tmp_flash[79] = tmp_buf[23];
+			
+			STMFLASH_Write(FLASH_PROCHEAD,(u32*)tmp_flash,FLASH_PROC_SIZE/4);
+			
+			for (i = 10; i<10+host_len; i++) {
+				tmp_buf[i] += 1;
+				tmp_crc += tmp_buf[i];
+			}
+			tmp_buf[10+host_len] = tmp_crc;
+			memcpy(p->payload, tmp_buf, 27+host_len);
+		break;
+		
+		default:
+			break;
+		}
+	}	
+	  //add our data deal proc end.    
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	if (recv_err == ERR_OK) {
+		memcpy(p->payload, tmp_buf,p->len);
+		udp_sendto(upcb, p,addr,port);  //????
+	}
+  /* Free the p buffer */
+	pbuf_free(p);
+}
+
 static void udpecho_thread(void *arg)
 {
-	
-  err_t 	err = ERR_OK;
-  err_t 	recv_err = ERR_OK;
-  int 		i;
-//  u8 		tmp_buf[COMM_LEN];
-  u8 		tmp_crc = 0;
-  int 		host_cmd = -1;
-  u8 		IpPort[8] = {0};
-//  u8 		tmp_flash[FLASH_PROC_SIZE];
-  
-  LWIP_UNUSED_ARG(arg);
+  struct udp_pcb *upcb;
+   err_t err;
 
-  printf("udpecho_thread in .\n");
-  conn = netconn_new(NETCONN_UDP);
-  if (conn != NULL)
-  {
-		printf("conn new suc .\n");
-	if (g_IpAllModified == 0)
-		err = netconn_bind(conn, IP_ADDR_ANY, LOCAL_UDPPORT);
-	else
-		err = netconn_bind(conn, IP_ADDR_ANY, LOCAL_UDPPORT_m);
-    if (err == ERR_OK)
-    {
-      while (1) 
+   /* Create a new UDP control block  */
+   upcb = udp_new();  //??????UDP???
+   if (upcb)
+   {
+     /* Bind the upcb to the UDP_PORT port */
+     /* Using IP_ADDR_ANY allow the upcb to be used by any local interface */
+	   err = udp_bind(upcb, IP_ADDR_ANY, g_LocalUdpPort);
+      if(err == ERR_OK)
       {
-        recv_err = netconn_recv(conn, &buf);
-        if (recv_err == ERR_OK) 
-        {
-          addr = netbuf_fromaddr(buf);
-          port = netbuf_fromport(buf);
-          netconn_connect(conn, addr, port);
-          buf->addr.addr = 0;
-				
-						#if 0
-				//add our data deal proc start.
-	//		  if (buf->p->len == COMM_LEN) {
-	//			memset(tmp_flash,0xff,128);	//		  
-	//			  
-	//			memcpy(tmp_buf, buf->p->payload, buf->p->len);
-	//			for (i = 0; i < 4; i++) {
-	//		      if (tmp_buf[i] != 0xbe) {
-	//				recv_err = ERR_KLDATA;
-	//			  }
-	//			}
-	//			
-	//			if (recv_err == ERR_OK) 
-	//			{
-	//				host_cmd = tmp_buf[4];
-	//				
-	//				for (i = 5; i < 13; i++) {
-	//				  tmp_crc += tmp_buf[i];
-	//				}
-	//				if (tmp_crc != tmp_buf[13]) {
-	//				  recv_err = ERR_KLDATA; 
-	//				}
-	//				recv_err = ERR_OK;
-	//			}
-	//			
-	//			if (recv_err == ERR_OK) 
-	//			{
-	//				for (i = 14; i < 18; i++) {
-	//				  if (tmp_buf[i] != 0xff) {
-	//					recv_err = ERR_KLDATA;
-	//				  }
-	//				}
-	//			}
-	//			if (recv_err == ERR_OK) 
-	//			{
-	//				for (i = 18; i < 22; i++) {
-	//				  if (tmp_buf[i] != 0xed) {
-	//					recv_err = ERR_KLDATA;
-	//				  }
-	//				}
-	//			}	
-	//				
-	//			if (recv_err == ERR_OK) 
-	//			{
-	//				tmp_crc = 0;
-	//				
-	//				switch(host_cmd){
-	//					case COMM_CMD_TEST:
-	//						for (i = 5; i<13; i++) {
-	//							tmp_buf[i] += 1;
-	//							tmp_crc += tmp_buf[i];
-	//						}
-	//						tmp_buf[13] = tmp_crc;
-	//						memcpy(buf->p->payload, tmp_buf, COMM_LEN);
-	//					break;
-	//						
-	//					case COMM_CMD_RELAY:
-	//						if (tmp_buf[5]) {//relay1
-	//							RELAY1_ON;
-	//						}
-	//						else {
-	//							RELAY1_OFF;
-	//						}
-	//						
-	//						if (tmp_buf[6]) {//relay2
-	//							RELAY2_ON;
-	//						}
-	//						else {
-	//							RELAY2_OFF;
-	//						}
-	//						
-	//						if (tmp_buf[7]) {//relay3
-	//							RELAY3_ON;
-	//						}
-	//						else {
-	//							RELAY3_OFF;
-	//						}
-	//						
-	//						if (tmp_buf[8]) {//relay4
-	//							RELAY4_ON;
-	//						}
-	//						else {
-	//							RELAY4_OFF;
-	//						}
-	//					break;
-	//						
-	//					case COMM_CMD_IP:
-	//						STMFLASH_Read(FLASH_PROCHEAD,(u32 *)tmp_flash,FLASH_PROC_SIZE/4);
-	//						for (i=0;i<FLASH_PROCHEAD_SIZE;i=i+2) {
-	//							tmp_flash[i] = 0xaa; 
-	//							tmp_flash[i+1] = 0x55;
-	//						}
-	//						
-	//						tmp_flash[64] = tmp_buf[5];
-	//						tmp_flash[65] = tmp_buf[6];
-	//						tmp_flash[66] = tmp_buf[7];
-	//						tmp_flash[67] = tmp_buf[8];
-	//						tmp_flash[68] = tmp_buf[9];
-	//						tmp_flash[69] = tmp_buf[10];
-	//						STMFLASH_Write(FLASH_PROCHEAD,(u32*)tmp_flash,FLASH_PROC_SIZE/4);
-	//					break;
-	//					
-	//					case COMM_CMD_GW:
-	//						STMFLASH_Read(FLASH_PROCHEAD,(u32 *)tmp_flash,FLASH_PROC_SIZE/4);
-	//						for (i=0;i<FLASH_PROCHEAD_SIZE;i=i+2) {
-	//							tmp_flash[i] = 0xaa; 
-	//							tmp_flash[i+1] = 0x55;
-	//						}
-	//						
-	//						tmp_flash[72] = tmp_buf[5];
-	//						tmp_flash[73] = tmp_buf[6];
-	//						tmp_flash[74] = tmp_buf[7];
-	//						tmp_flash[75] = tmp_buf[8];
-	//						tmp_flash[76] = tmp_buf[9];
-	//						tmp_flash[77] = tmp_buf[10];
-	//						tmp_flash[78] = tmp_buf[11];
-	//						tmp_flash[79] = tmp_buf[12];
-	//						STMFLASH_Write(FLASH_PROCHEAD,(u32*)tmp_flash,FLASH_PROC_SIZE/4);
-	//					break;
-	//					
-	//					default:
-	//						break;
-	//				}
-	//			}	
-	//		  }
-				//add our data deal proc end.    
-	#endif
-							
-						netconn_send(conn, buf);
-						netbuf_delete(buf);
-        }
+        /* Set a receive callback for the upcb */
+        udp_recv(upcb, udp_echoserver_receive_callback, NULL);   //??????????
       }
-    }
-    else
-    {
-      netconn_delete(conn);
-      printf("can not bind netconn");
-    }
-  }
-  else
-  {
-    printf("can not create new UDP netconn");
-  }
+      else
+      {
+        udp_remove(upcb);
+      }
+   }
+ }
+
+ void udpecho_init(void)
+{  
+	udpecho_thread(NULL);
 }
 
-/*-----------------------------------------------------------------------------------*/
-void udpecho_init(void)
-{
-  sys_thread_new("udpecho_thread", udpecho_thread, NULL, DEFAULT_THREAD_STACKSIZE, UDPECHO_THREAD_PRIO);
-}
-
-#endif /* LWIP_NETCONN */
-
-
+#endif
 
 
 
