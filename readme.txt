@@ -59,6 +59,10 @@ Bit3-Bit0????:0x0:复位,0x1 :开路,0x2 :对UbattC+ 短路,0x3 :对 UbattC- 短路,
 selftest,can res ... not surpport
 PF6 可用于 频率 等控制
 
+20180803
+初步形成 v1.0.0 版本
+FIU控制界面联调ok，待生产测试 -> v.1.0.x 
+
 
 
 
