@@ -1108,7 +1108,7 @@ uint8_t McuGetHostConfigInfo(void) //组织数据,仿照老版 fiu 同名函数
     }
     else if(nCurCommandVal == 2) //快速切换 漏电模拟
     {
-        if(nCurErrorType == 0) //ecu-load
+        if(nCurErrorType == 0) //ECU-ECU 短路
         {
             if(nCurWithLoad == 1)
             {
@@ -1117,7 +1117,9 @@ uint8_t McuGetHostConfigInfo(void) //组织数据,仿照老版 fiu 同名函数
 				else
 					P1 = McuFault64BitValuePinSet(P1,nCurPinNum - 64);
 				
-				P1 = McuFault64BitValuePinSet(P1,8); 
+				P1 = McuFault64BitValuePinClr(P1,8); 
+				P1 = McuFault64BitValuePinSet(P1,9);
+				P1 = McuFault64BitValuePinSet(P1,10);
 				P1 = McuFault64BitValuePinSet(P1,12); 
             }
             else if(nCurWithLoad == 0)
@@ -1127,7 +1129,9 @@ uint8_t McuGetHostConfigInfo(void) //组织数据,仿照老版 fiu 同名函数
 				else
 					P1 = McuFault64BitValuePinSet(P1,nCurPinNum - 64);
 				
-				P1 = McuFault64BitValuePinSet(P1,8);
+				P1 = McuFault64BitValuePinClr(P1,8); 
+				P1 = McuFault64BitValuePinSet(P1,9);
+				P1 = McuFault64BitValuePinSet(P1,10);
 				P1 = McuFault64BitValuePinClr(P1,12);       
 			}
 			else
@@ -1140,8 +1144,20 @@ uint8_t McuGetHostConfigInfo(void) //组织数据,仿照老版 fiu 同名函数
 			else
 				P1 = McuFault64BitValuePinSet(P1,nCurPinNum - 64);
 			
-			P1 = McuFault64BitValuePinSet(P1,9); 
+			P1 = McuFault64BitValuePinSet(P1,8); 
 			P1 = McuFault64BitValuePinSet(P1,12); 
+			//load
+            if(nCurWithLoad == 1){
+				P1 = McuFault64BitValuePinSet(P1,12); 
+            }
+            else if(nCurWithLoad == 0){
+                P1 = McuFault64BitValuePinClr(P1,12);
+            }                
+            else  //只能是 0 或 1
+            {
+                P_init();
+                return g_HostConfigErr[13];
+            }
         }
         else if(nCurErrorType == 2)
         {
@@ -1150,7 +1166,7 @@ uint8_t McuGetHostConfigInfo(void) //组织数据,仿照老版 fiu 同名函数
 			else
 				P1 = McuFault64BitValuePinSet(P1,nCurPinNum - 64);
 			
-			P1 = McuFault64BitValuePinSet(P1,8); 
+			P1 = McuFault64BitValuePinClr(P1,8); 
 			P1 = McuFault64BitValuePinSet(P1,9);
 			//load
             if(nCurWithLoad == 1){
@@ -1172,7 +1188,8 @@ uint8_t McuGetHostConfigInfo(void) //组织数据,仿照老版 fiu 同名函数
 			else
 				P1 = McuFault64BitValuePinSet(P1,nCurPinNum - 64);
 			 
-			P1 = McuFault64BitValuePinSet(P1,10);
+			P1 = McuFault64BitValuePinSet(P1,8);
+			P1 = McuFault64BitValuePinSet(P1,9);
 			//load
             if(nCurWithLoad == 1){
 				P1 = McuFault64BitValuePinSet(P1,12); 
@@ -1194,7 +1211,8 @@ uint8_t McuGetHostConfigInfo(void) //组织数据,仿照老版 fiu 同名函数
 				P1 = McuFault64BitValuePinSet(P1,nCurPinNum - 64);
 			 
 			P1 = McuFault64BitValuePinSet(P1,10);
-			P1 = McuFault64BitValuePinSet(P1,8);
+			P1 = McuFault64BitValuePinClr(P1,9);
+			P1 = McuFault64BitValuePinClr(P1,8);
 			//load
             if(nCurWithLoad == 1){
 				P1 = McuFault64BitValuePinSet(P1,12); 
@@ -1216,7 +1234,8 @@ uint8_t McuGetHostConfigInfo(void) //组织数据,仿照老版 fiu 同名函数
 				P1 = McuFault64BitValuePinSet(P1,nCurPinNum - 64);
 			 
 			P1 = McuFault64BitValuePinSet(P1,10);
-			P1 = McuFault64BitValuePinSet(P1,9);
+			P1 = McuFault64BitValuePinClr(P1,9);
+			P1 = McuFault64BitValuePinSet(P1,8);
 			//load
             if(nCurWithLoad == 1){
 				P1 = McuFault64BitValuePinSet(P1,12); 

@@ -956,12 +956,13 @@ ARM Macro Assembler    Page 15
               00000400 
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4.fp --apcs=int
-erwork --depend=..\obj\startup_stm32f429xx.d -o..\obj\startup_stm32f429xx.o -IE
-:\aaProduct\hd\HardProductUpdate\NewFiu\FiuNv\USER\RTE -ID:\MDK5\mdk511a_exe\AR
-M\PACK\Keil\STM32F4xx_DFP\2.11.0 -ID:\MDK5\mdk511a_exe\ARM\CMSIS\Include -ID:\M
-DK5\mdk511a_exe\ARM\PACK\Keil\STM32F4xx_DFP\2.11.0\Drivers\CMSIS\Device\ST\STM3
-2F4xx\Include --predefine="__UVISION_VERSION SETA 514" --predefine="STM32F429xx
- SETA 1" --list=..\obj\startup_stm32f429xx.lst ..\CORE\startup_stm32f429xx.s
+erwork --depend=..\releasefiles\startup_stm32f429xx.d -o..\releasefiles\startup
+_stm32f429xx.o -IE:\aaProduct\hd\HardProductUpdate\NewFiu\FiuNv\USER\RTE -ID:\M
+DK5\mdk511a_exe\ARM\PACK\Keil\STM32F4xx_DFP\2.11.0 -ID:\MDK5\mdk511a_exe\ARM\CM
+SIS\Include -ID:\MDK5\mdk511a_exe\ARM\PACK\Keil\STM32F4xx_DFP\2.11.0\Drivers\CM
+SIS\Device\ST\STM32F4xx\Include --predefine="__UVISION_VERSION SETA 514" --pred
+efine="STM32F429xx SETA 1" --list=..\obj\startup_stm32f429xx.lst ..\CORE\startu
+p_stm32f429xx.s
 
 
 

@@ -1,0 +1,12 @@
+..\releasefiles\lib_mem.o: ..\UCOSII\uC-LIB\lib_mem.c
+..\releasefiles\lib_mem.o: ..\UCOSII\uC-LIB\lib_mem.h
+..\releasefiles\lib_mem.o: ..\UCOSII\uC-CPU\ARM-Cortex-M4\RealView\ucosii_cpu.h
+..\releasefiles\lib_mem.o: ..\UCOSII\uC-CPU\cpu_def.h
+..\releasefiles\lib_mem.o: ..\UCOSII\uCOS-CONFIG\cpu_cfg.h
+..\releasefiles\lib_mem.o: ..\UCOSII\uC-CPU\cpu_core.h
+..\releasefiles\lib_mem.o: ..\UCOSII\uC-LIB\lib_def.h
+..\releasefiles\lib_mem.o: ..\UCOSII\uC-LIB\lib_mem.h
+..\releasefiles\lib_mem.o: ..\UCOSII\uC-LIB\lib_str.h
+..\releasefiles\lib_mem.o: ..\UCOSII\uC-LIB\lib_ascii.h
+..\releasefiles\lib_mem.o: ..\UCOSII\uCOS-CONFIG\lib_cfg.h
+..\releasefiles\lib_mem.o: ..\UCOSII\uC-LIB\lib_math.h

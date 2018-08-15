@@ -170,10 +170,14 @@ void start_task(void *pdata)
 //led»ŒŒÒ
 void led_task(void *pdata)
 {		
-	PCF8574_WriteBit(RUNLED_IO,1);	//front board run led
+	u8 cnt = 0;
+	u8 led = 1;
+	PCF8574_WriteBit(RUNLED_IO,led);	//front board run led
 	
 	while(1)
 	{
+		cnt++;
+		
 		LED_MCU = !LED_MCU; //mcu core board led6 
 		
 		if (!PCF8574_ReadBit(TEMP1_IO) || !PCF8574_ReadBit(TEMP2_IO)) {
@@ -181,6 +185,11 @@ void led_task(void *pdata)
 		}		
 		
 		OSTimeDlyHMSM(0,0,0,500);  //—” ±500ms
+		
+		if (cnt % 4 == 0) {
+			led = !led;
+			PCF8574_WriteBit(RUNLED_IO,led);
+		}		
 	}
 }
 
@@ -399,9 +408,9 @@ void Error_loop(void)
 	while (1) {
 		printf("error loop - ing\n");
 		delay_ms(500);
-		PCF8574_WriteBit(RUNLED_IO,1);	//front board run led
+		//PCF8574_WriteBit(RUNLED_IO,1);	//front board run led
 		delay_ms(500);
-		PCF8574_WriteBit(RUNLED_IO,0);	//front board run led
+		//PCF8574_WriteBit(RUNLED_IO,0);	//front board run led
 	}		
 }
 

@@ -34,7 +34,7 @@ u8 PCF8574_Init(void)
 	IIC_Send_Byte(PCF8574_ADDR);            //写地址			   
 	temp=IIC_Wait_Ack();		            //等待应答,通过判断是否有ACK应答,来判断PCF8574的状态
     IIC_Stop();					            //产生一个停止条件
-    PCF8574_WriteOneByte(0XFF);	            //默认情况下所有IO输出高电平
+    PCF8574_WriteOneByte(0Xeb);	            //默认情况下所有IO输出高电平
 	return temp;
 }
 

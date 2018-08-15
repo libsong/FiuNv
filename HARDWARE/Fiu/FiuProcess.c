@@ -18,9 +18,9 @@ Customers should define the pins according to their design.
 
 
 
-
-
 extern uint8_t g_FiuByte17Data[17];
+
+
 
 
 unsigned char DataRead[3];
@@ -394,17 +394,25 @@ void fuhegz_set(u8 uChannel,u8 uSetValue)   //uChannel:0-71
 {
 	u8 utemp,uDqNumber,uDqPin;
 	u16 uDqPinVal;
+	u8 uWithload,uSetValue1;
 	
 	
-
+	 uWithload=(uSetValue>>4)&0x1;  
+	 uSetValue1=uSetValue&0xf;
+	
+    if(uWithload==0)   //wiht no load
+		{
 		utemp=uChannel*3+0;
 	  uDqNumber=utemp/16;   
 	  uDqPin=utemp%16;
 		uDqPinVal=0x1<<uDqPin;
 		Sn74374_fun(uDqNumber,uDqPinVal);
+	  }
+	 
+	 
 	
 	
-  if(uSetValue==2)  // ECU-UBATA+ ¶ÌÂ·¹ÊÕÏ
+  if(uSetValue1==2)  // ECU-UBATA+ ¶ÌÂ·¹ÊÕÏ
   {
     utemp=uChannel*3+1;
 	  uDqNumber=utemp/16;   
@@ -413,7 +421,7 @@ void fuhegz_set(u8 uChannel,u8 uSetValue)   //uChannel:0-71
 		Sn74374_fun(uDqNumber,uDqPinVal);
 		HV_FunRelay_Set(1);
 	}		
-	else if(uSetValue==3)  // ECU-UBATA- ¶ÌÂ·¹ÊÕÏ
+	else if(uSetValue1==3)  // ECU-UBATA- ¶ÌÂ·¹ÊÕÏ
   {
     utemp=uChannel*3+1;
 	  uDqNumber=utemp/16;   
@@ -422,7 +430,7 @@ void fuhegz_set(u8 uChannel,u8 uSetValue)   //uChannel:0-71
 		Sn74374_fun(uDqNumber,uDqPinVal);
 		HV_FunRelay_Set(2);
 	}		
-	else if(uSetValue==4)  // ECU-UBATB+ ¶ÌÂ·¹ÊÕÏ
+	else if(uSetValue1==4)  // ECU-UBATB+ ¶ÌÂ·¹ÊÕÏ
   {
     utemp=uChannel*3+1;
 	  uDqNumber=utemp/16;   
@@ -431,7 +439,7 @@ void fuhegz_set(u8 uChannel,u8 uSetValue)   //uChannel:0-71
 		Sn74374_fun(uDqNumber,uDqPinVal);
 		HV_FunRelay_Set(3);
 	}		
-	else if(uSetValue==5)  // ECU-UBATB- ¶ÌÂ·¹ÊÕÏ
+	else if(uSetValue1==5)  // ECU-UBATB- ¶ÌÂ·¹ÊÕÏ
   {
     utemp=uChannel*3+1;
 	  uDqNumber=utemp/16;   
@@ -450,17 +458,24 @@ void ddlgz_set(u8 uChannel,u8 uSetValue)   //uChannel:0-71
 {
 	u8 utemp,uDqNumber,uDqPin;
 	u16 uDqPinVal;
+	u8 uWithload,uSetValue1;
 	
+	  uWithload=(uSetValue>>4)&0x1;
+	  uSetValue1=uSetValue&0xf;
 	
-	
+    if(uWithload==0)  //with no load
+		{
 		utemp=uChannel*3+0;
 	  uDqNumber=utemp/16;   
 	  uDqPin=utemp%16;
 		uDqPinVal=0x1<<uDqPin;
 		Sn74374_fun(uDqNumber,uDqPinVal);
+	  }
 	
 	
-  if(uSetValue==2)  // ECU-UBATC+ ¶ÌÂ·¹ÊÕÏ
+	
+	
+  if(uSetValue1==2)  // ECU-UBATC+ ¶ÌÂ·¹ÊÕÏ
   {
     utemp=uChannel*3+1;
 	  uDqNumber=utemp/16;   
@@ -469,7 +484,7 @@ void ddlgz_set(u8 uChannel,u8 uSetValue)   //uChannel:0-71
 		Sn74374_fun(uDqNumber,uDqPinVal);
 		HI_FunRelay_Set(1);
 	}		
-	else if(uSetValue==3)  // ECU-UBATC- ¶ÌÂ·¹ÊÕÏ
+	else if(uSetValue1==3)  // ECU-UBATC- ¶ÌÂ·¹ÊÕÏ
   {
     utemp=uChannel*3+1;
 	  uDqNumber=utemp/16;   
@@ -487,13 +502,19 @@ void kstdgz_set(u8 uChannel,u8 uSetValue)   //uChannel:0-71
 {
 	u8 i,utemp,uDqNumber,uDqPin;
 	u16 uDqPinVal;
+	u8 uWithload,uSetValue1;
+	
+	  uWithload=(uSetValue>>4)&0x1;	
+	  uSetValue1=uSetValue&0xf;
 		
-		
+	  	
     utemp=uChannel*3+0;
 	  uDqNumber=utemp/16;   
 	  uDqPin=utemp%16;
 		uDqPinVal=0x1<<uDqPin;
 		Sn74374_fun(uDqNumber,uDqPinVal); //ECU OPEN TO LOAD
+	
+		
 		
 		utemp=uChannel*3+1;
 	  uDqNumber=utemp/16;   
@@ -501,31 +522,34 @@ void kstdgz_set(u8 uChannel,u8 uSetValue)   //uChannel:0-71
 		uDqPinVal=0x1<<uDqPin;
 		Sn74374_fun(uDqNumber,uDqPinVal);  //ECU CONNECT TO BUSIN 
 		
-		utemp=uChannel*3+2;
+	  if(uWithload==1)  //with load
+		{	
+	  utemp=uChannel*3+2;
 	  uDqNumber=utemp/16;   
 	  uDqPin=utemp%16;
 		uDqPinVal=0x1<<uDqPin;
 		Sn74374_fun(uDqNumber,uDqPinVal);  //LOAD CONNECT TO BUSOUT
 		uKasuStatus[uChannel]=1;
+		}	
 		
 		
-	if(uSetValue==1)   //ECU-LOAD¿ªÂ·¹ÊÕÏ
+	if(uSetValue1==1)   //ECU-LOAD¿ªÂ·¹ÊÕÏ
 	{
 		HV_FunRelay_Set(9); // ¹ÌÌ¬¼ÌµçÆ÷¶Ï¿ª
 	}	
-	else if(uSetValue==2)  // ECU-UBATA+ ¶ÌÂ·¹ÊÕÏ
+	else if(uSetValue1==2)  // ECU-UBATA+ ¶ÌÂ·¹ÊÕÏ
   {
    	HV_FunRelay_Set(5); // ¹ÌÌ¬¼ÌµçÆ÷±ÕºÏ
 	}		
-	else if(uSetValue==3)  // ECU-UBATA- ¶ÌÂ·¹ÊÕÏ
+	else if(uSetValue1==3)  // ECU-UBATA- ¶ÌÂ·¹ÊÕÏ
   {
     HV_FunRelay_Set(6); // ¹ÌÌ¬¼ÌµçÆ÷±ÕºÏ
 	}		
-	else if(uSetValue==4)  // ECU-UBATB+ ¶ÌÂ·¹ÊÕÏ
+	else if(uSetValue1==4)  // ECU-UBATB+ ¶ÌÂ·¹ÊÕÏ
   {
    	HV_FunRelay_Set(7); // ¹ÌÌ¬¼ÌµçÆ÷±ÕºÏ
 	}		
-	else if(uSetValue==5)  // ECU-UBATB- ¶ÌÂ·¹ÊÕÏ
+	else if(uSetValue1==5)  // ECU-UBATB- ¶ÌÂ·¹ÊÕÏ
   {
     HV_FunRelay_Set(8); // ¹ÌÌ¬¼ÌµçÆ÷±ÕºÏ
 	}		
@@ -537,7 +561,10 @@ void ksldmn_set(u8 uChannel,u8 uSetValue)   //uChannel:0-71
 {
 	u8 utemp,uDqNumber,uDqPin;
 	u16 uDqPinVal;
+	u8 uWithload,uSetValue1;
 	
+	  uWithload=(uSetValue>>4)&0x1;	
+	  uSetValue1=uSetValue&0xf;
 		
     utemp=uChannel*3+0;
 	  uDqNumber=utemp/16;   
@@ -551,40 +578,42 @@ void ksldmn_set(u8 uChannel,u8 uSetValue)   //uChannel:0-71
 		uDqPinVal=0x1<<uDqPin;
 		Sn74374_fun(uDqNumber,uDqPinVal);  //ECU CONNECT TO BUSIN 
 		
+	  if(uWithload==1)  //with load
+		{
 		utemp=uChannel*3+2;
 	  uDqNumber=utemp/16;   
 	  uDqPin=utemp%16;
 		uDqPinVal=0x1<<uDqPin;
 		Sn74374_fun(uDqNumber,uDqPinVal);  //LOAD CONNECT TO BUSOUT
 		uKasuStatus[uChannel]=1;
- 
+    }
 	
-	if(uSetValue==1)   //ECU-LOADÂ©µçÄ£Äâ
+	if(uSetValue1==1)   //ECU-LOADÂ©µçÄ£Äâ
 	{
 		HV_FunRelay_Set(10); // ¹ÌÌ¬¼ÌµçÆ÷±ÕºÏ
 		Resistance_select(uFiuCom_buf[13],uFiuCom_buf[14]);
 	}	
-	else if(uSetValue==2)  // ECU-UBATA+ Â©µçÄ£Äâ
+	else if(uSetValue1==2)  // ECU-UBATA+ Â©µçÄ£Äâ
   {
    	HV_FunRelay_Set(5); // ¹ÌÌ¬¼ÌµçÆ÷±ÕºÏ
 		Resistance_select(uFiuCom_buf[13],uFiuCom_buf[14]);
 	}		
-	else if(uSetValue==3)  // ECU-UBATA- ¶ÌÂ·¹ÊÕÏ
+	else if(uSetValue1==3)  // ECU-UBATA- ¶ÌÂ·¹ÊÕÏ
   {
     HV_FunRelay_Set(6); // ¹ÌÌ¬¼ÌµçÆ÷±ÕºÏ
 		Resistance_select(uFiuCom_buf[13],uFiuCom_buf[14]);
 	}		
-	else if(uSetValue==4)  // ECU-UBATB+ ¶ÌÂ·¹ÊÕÏ
+	else if(uSetValue1==4)  // ECU-UBATB+ ¶ÌÂ·¹ÊÕÏ
   {
    	HV_FunRelay_Set(7); // ¹ÌÌ¬¼ÌµçÆ÷±ÕºÏ
 		Resistance_select(uFiuCom_buf[13],uFiuCom_buf[14]);
 	}		
-	else if(uSetValue==5)  // ECU-UBATB- ¶ÌÂ·¹ÊÕÏ
+	else if(uSetValue1==5)  // ECU-UBATB- ¶ÌÂ·¹ÊÕÏ
   {
     HV_FunRelay_Set(8); // ¹ÌÌ¬¼ÌµçÆ÷±ÕºÏ
 		Resistance_select(uFiuCom_buf[13],uFiuCom_buf[14]);
 	}		
-	else if(uSetValue==7)  // ECU-LOAD- µçÁ÷
+	else if(uSetValue1==7)  // ECU-LOAD- µçÁ÷
   {
     HV_FunRelay_Set(11); // ¹ÌÌ¬¼ÌµçÆ÷±ÕºÏ
 		Resistance_select(uFiuCom_buf[13],uFiuCom_buf[14]);
@@ -716,11 +745,14 @@ void kstdgz_process(void)
 void ksldmn_process(void)
 {
 	u8 i,j,utemp,uChan,t,uChanSet[4];
+	u8 uFiuCom_Buftemp;
+	
+	uFiuCom_Buftemp=uFiuCom_buf[12]&0xf;
 	
 	tdreset_process();
 			 
 	t=0;
-	if(((uFiuCom_buf[12]>=0)&&(uFiuCom_buf[12]<6))|(uFiuCom_buf[12]==7))
+	if(((uFiuCom_Buftemp>=0)&&(uFiuCom_Buftemp<6))|(uFiuCom_Buftemp==7))
 	{
    for(i=0;i<9;i++)
 	 {
@@ -740,7 +772,7 @@ void ksldmn_process(void)
   } 	
 
 	
-	if (uFiuCom_buf[12]==0x06 )  //ecu-ecu connect
+	if (uFiuCom_Buftemp==0x06 )  //ecu-ecu connect
 	 {	
 	 for(i=0;i<9;i++)
 	  {
@@ -808,22 +840,22 @@ void ddltdgz_process(void)
 void FiuCom_Process(u8 uType)
 {
 	u8 i;
-// if(uType==0)    // ethernet command
-// {	
-//	for (i=0;i<17;i++)
-//	{
-//	 uFiuCom_buf[i]=g_FiuByte17Data[i];
-//	}	
-// }	
-// else if(uType==1)  // can command
-// {
-//  for (i=0;i<17;i++)
-//	{
-//	 uFiuCom_buf[i]=g_FiuByte17Data[i];
-//  }	
-// }	 
+ // if(uType==0)    // ethernet command
+ // {	
+	// for (i=0;i<17;i++)
+	// {
+	 // uFiuCom_buf[i]=udp_demo_recvbuf[i];
+  // }	
+ // }	
+ // else if(uType==1)  // can command
+ // {
+  // for (i=0;i<17;i++)
+	// {
+	 // uFiuCom_buf[i]=cancommandbuf[i];
+  // }	
+ // }	 
  
- for (i=0;i<17;i++)
+  for (i=0;i<17;i++)
 	{
 	 uFiuCom_buf[i]=g_FiuByte17Data[i];
 	}
@@ -837,7 +869,7 @@ void FiuCom_Process(u8 uType)
         case 1:kstdgz_process();break;  //¿ìËÙÍ¨µÀ¹ÊÕÏ
         case 2:ksldmn_process();break;  //¿ìËÙÂ©µçÄ£Äâ
         case 3:ddltdgz_process();break;  //´óµçÁ÷¹ÊÕÏ
-				case 4:tdreset_process();break;  //¸
+				case 4:tdreset_process();break;  //?
         default:printf("error\n");break;
       }
 		

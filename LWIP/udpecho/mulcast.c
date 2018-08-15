@@ -85,32 +85,27 @@ void udp_server_rev(void* arg,struct udp_pcb* upcb,struct pbuf* p,struct ip_addr
 					tmp_flash[i+1] = 0x55;
 				}
 				
-				tmp_flash[64] = tmp_buf[10];
-				tmp_flash[65] = tmp_buf[11];
-				tmp_flash[66] = tmp_buf[12];
-				tmp_flash[67] = tmp_buf[13];
-				tmp_flash[68] = tmp_buf[14];
-				tmp_flash[69] = tmp_buf[15];
+				tmp_flash[48] = tmp_buf[10];
+				tmp_flash[49] = tmp_buf[11];
+				tmp_flash[50] = tmp_buf[12];
+				tmp_flash[51] = tmp_buf[13];
 				
-				tmp_flash[72] = tmp_buf[16];
-				tmp_flash[73] = tmp_buf[17];
-				tmp_flash[74] = tmp_buf[18];
-				tmp_flash[75] = tmp_buf[19];
-				tmp_flash[76] = tmp_buf[20];
-				tmp_flash[77] = tmp_buf[21];
-				tmp_flash[78] = tmp_buf[22];
-				tmp_flash[79] = tmp_buf[23];
+				//FIU 只改 IP，gw = ip最后一位为1 ，nm = 255.255.255.0
+//				tmp_flash[52] = tmp_buf[14];
+//				tmp_flash[53] = tmp_buf[15];
+//				
+//				tmp_flash[56] = tmp_buf[16];
+//				tmp_flash[57] = tmp_buf[17];
+//				tmp_flash[58] = tmp_buf[18];
+//				tmp_flash[59] = tmp_buf[19];
+//				tmp_flash[60] = tmp_buf[20];
+//				tmp_flash[61] = tmp_buf[21];
+//				tmp_flash[62] = tmp_buf[22];
+//				tmp_flash[63] = tmp_buf[23];
 				
 				STMFLASH_Write(FLASH_PROCHEAD,(u32*)tmp_flash,FLASH_PROC_SIZE/4);
 			}
 		}
-		
-//		printf("mcu mculcast recv data len : %d\n",p->tot_len);
-//		for(i=0;i<p->tot_len;i++)
-//		{  
-//			printf("%x ",tmp_buf[i]);  
-//		} 
-//		printf("\n");
 	}   
 }  
 
