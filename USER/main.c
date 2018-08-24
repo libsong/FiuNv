@@ -269,7 +269,7 @@ void netinit_task(void *pdata)
 				PCF8574_WriteBit(SOFTRSTLED_IO,1);	//front board run led.
 				HAL_GPIO_WritePin(GPIOB,GPIO_PIN_12,GPIO_PIN_SET);//buzzer
 				delay_ms(500);
-				PCF8574_WriteBit(SOFTRSTLED_IO,1);	
+				PCF8574_WriteBit(SOFTRSTLED_IO,0);	
 				HAL_GPIO_WritePin(GPIOB,GPIO_PIN_12,GPIO_PIN_RESET);//buzzer
 				
 				printf("Device SFRST done .\n");

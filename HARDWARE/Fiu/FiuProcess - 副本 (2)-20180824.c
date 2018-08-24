@@ -17,9 +17,9 @@ Customers should define the pins according to their design.
 #define CHANNUMBER 72
 
 
+
+
 extern uint8_t g_FiuByte17Data[17];
-
-
 
 
 
@@ -661,19 +661,15 @@ void ksldmn_set(u8 uChannel,u8 uSetValue)   //uChannel:0-71
 	 
 void ksldmn_two_set(u8 uChannel1,u8 uChannel2,u8 type)   //
 {
-	u8 utemp,uDqNumber,uDqPin,uWithload;
+	u8 utemp,uDqNumber,uDqPin;
 	u16 uDqPinVal;
 	
-	  uWithload=(uFiuCom_buf[12]>>4)&0x1;	
-    
-	  if(uWithload==0)
-		{	
+
     utemp=uChannel1*3+0;
 	  uDqNumber=utemp/16;   
 	  uDqPin=utemp%16;
 		uDqPinVal=0x1<<uDqPin;
 		Sn74374_fun(uDqNumber,uDqPinVal); //ECU1 OPEN TO LOAD
-		}	
 		
 		utemp=uChannel1*3+1;
 	  uDqNumber=utemp/16;   

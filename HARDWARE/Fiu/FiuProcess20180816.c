@@ -17,8 +17,8 @@ Customers should define the pins according to their design.
 #define CHANNUMBER 72
 
 
-extern uint8_t g_FiuByte17Data[17];
 
+extern uint8_t g_FiuByte17Data[17];
 
 
 
@@ -472,16 +472,10 @@ void ddlgz_set(u8 uChannel,u8 uSetValue)   //uChannel:0-71
 		Sn74374_fun(uDqNumber,uDqPinVal);
 	  }
 	
-	if(uSetValue1==1)  //ECU OPEN TO LOAD
-		{
-		utemp=uChannel*3+0;
-	  uDqNumber=utemp/16;   
-	  uDqPin=utemp%16;
-		uDqPinVal=0x1<<uDqPin;
-		Sn74374_fun(uDqNumber,uDqPinVal);
-	  }
 	
-  else if(uSetValue1==2)  // ECU-UBATC+ 短路故障
+	
+	
+  if(uSetValue1==2)  // ECU-UBATC+ 短路故障
   {
     utemp=uChannel*3+1;
 	  uDqNumber=utemp/16;   
@@ -499,7 +493,6 @@ void ddlgz_set(u8 uChannel,u8 uSetValue)   //uChannel:0-71
 		Sn74374_fun(uDqNumber,uDqPinVal);
 		HI_FunRelay_Set(2);
 	}		
-	
 	
 }	
 
@@ -572,49 +565,12 @@ void ksldmn_set(u8 uChannel,u8 uSetValue)   //uChannel:0-71
 	
 	  uWithload=(uSetValue>>4)&0x1;	
 	  uSetValue1=uSetValue&0xf;
-	
-		if(uWithload==0)  //with no load
-    {
-		utemp=uChannel*3+0;
-	  uDqNumber=utemp/16;   
-	  uDqPin=utemp%16;
-		uDqPinVal=0x1<<uDqPin;
-		Sn74374_fun(uDqNumber,uDqPinVal); //ECU OPEN TO LOAD
-		}	
-		else if((uWithload==1)&&(uSetValue1==1)) // ECU-LOAD with load
-		{
-		utemp=uChannel*3+0;
-	  uDqNumber=utemp/16;   
-	  uDqPin=utemp%16;
-		uDqPinVal=0x1<<uDqPin;
-		Sn74374_fun(uDqNumber,uDqPinVal); //ECU OPEN TO LOAD
-			
-		utemp=uChannel*3+2;
-	  uDqNumber=utemp/16;   
-	  uDqPin=utemp%16;
-		uDqPinVal=0x1<<uDqPin;
-		Sn74374_fun(uDqNumber,uDqPinVal);  //LOAD CONNECT TO BUSOUT
-		uKasuStatus[uChannel]=1;	
-		}	
 		
-		
-		if(uSetValue==7) // ECU-LOAD- test current
-		{
     utemp=uChannel*3+0;
 	  uDqNumber=utemp/16;   
 	  uDqPin=utemp%16;
 		uDqPinVal=0x1<<uDqPin;
 		Sn74374_fun(uDqNumber,uDqPinVal); //ECU OPEN TO LOAD
-			
-		utemp=uChannel*3+2;
-	  uDqNumber=utemp/16;   
-	  uDqPin=utemp%16;
-		uDqPinVal=0x1<<uDqPin;
-		Sn74374_fun(uDqNumber,uDqPinVal);  //LOAD CONNECT TO BUSOUT
-		uKasuStatus[uChannel]=1;	
-		}			
-				
-			
 		
 		utemp=uChannel*3+1;
 	  uDqNumber=utemp/16;   
@@ -622,7 +578,15 @@ void ksldmn_set(u8 uChannel,u8 uSetValue)   //uChannel:0-71
 		uDqPinVal=0x1<<uDqPin;
 		Sn74374_fun(uDqNumber,uDqPinVal);  //ECU CONNECT TO BUSIN 
 		
-	  
+	  if(uWithload==1)  //with load
+		{
+		utemp=uChannel*3+2;
+	  uDqNumber=utemp/16;   
+	  uDqPin=utemp%16;
+		uDqPinVal=0x1<<uDqPin;
+		Sn74374_fun(uDqNumber,uDqPinVal);  //LOAD CONNECT TO BUSOUT
+		uKasuStatus[uChannel]=1;
+    }
 	
 	if(uSetValue1==1)   //ECU-LOAD漏电模拟
 	{
@@ -661,19 +625,15 @@ void ksldmn_set(u8 uChannel,u8 uSetValue)   //uChannel:0-71
 	 
 void ksldmn_two_set(u8 uChannel1,u8 uChannel2,u8 type)   //
 {
-	u8 utemp,uDqNumber,uDqPin,uWithload;
+	u8 utemp,uDqNumber,uDqPin;
 	u16 uDqPinVal;
 	
-	  uWithload=(uFiuCom_buf[12]>>4)&0x1;	
-    
-	  if(uWithload==0)
-		{	
+
     utemp=uChannel1*3+0;
 	  uDqNumber=utemp/16;   
 	  uDqPin=utemp%16;
 		uDqPinVal=0x1<<uDqPin;
 		Sn74374_fun(uDqNumber,uDqPinVal); //ECU1 OPEN TO LOAD
-		}	
 		
 		utemp=uChannel1*3+1;
 	  uDqNumber=utemp/16;   
@@ -707,70 +667,6 @@ void ksldmn_two_set(u8 uChannel1,u8 uChannel2,u8 type)   //
 		Resistance_select(uFiuCom_buf[13],uFiuCom_buf[14]);
 		}	
     */
-	
-}
-
-
-
-void ddlgz_two_set(u8 uChannel1,u8 uChannel2,u8 uSetValue)   //
-{
-	u8 utemp,uDqNumber,uDqPin;
-	u16 uDqPinVal;
-	u8 uWithload,uSetValue1;
-	
-	  uWithload=(uSetValue>>4)&0x1;	
-	  uSetValue1=uSetValue&0xf;
-
-	 if(uWithload==0)
-	 {
-		 
-    utemp=uChannel1*3+0;
-	  uDqNumber=utemp/16;   
-	  uDqPin=utemp%16;
-		uDqPinVal=0x1<<uDqPin;
-		Sn74374_fun(uDqNumber,uDqPinVal); //ECU1 OPEN TO LOAD
-		 
-		 
-		utemp=uChannel2*3+0;
-	  uDqNumber=utemp/16;   
-	  uDqPin=utemp%16;
-		uDqPinVal=0x1<<uDqPin;
-		Sn74374_fun(uDqNumber,uDqPinVal); //ECU2 OPEN TO LOAD 
-		 
-		 
-			
-		utemp=uChannel1*3+1;
-	  uDqNumber=utemp/16;   
-	  uDqPin=utemp%16;
-		uDqPinVal=0x1<<uDqPin;
-		Sn74374_fun(uDqNumber,uDqPinVal);  //ECU1 CONNECT TO BUSIN 
-		
-			
-		utemp=uChannel2*3+1;
-	  uDqNumber=utemp/16;   
-	  uDqPin=utemp%16;
-		uDqPinVal=0x1<<uDqPin;
-		Sn74374_fun(uDqNumber,uDqPinVal);  //ECU2 CONNECT TO BUSIN 
-	 }
-   else
-   {
-    utemp=uChannel1*3+1;
-	  uDqNumber=utemp/16;   
-	  uDqPin=utemp%16;
-		uDqPinVal=0x1<<uDqPin;
-		Sn74374_fun(uDqNumber,uDqPinVal);  //ECU1 CONNECT TO BUSIN 
-		
-			
-		utemp=uChannel2*3+1;
-	  uDqNumber=utemp/16;   
-	  uDqPin=utemp%16;
-		uDqPinVal=0x1<<uDqPin;
-		Sn74374_fun(uDqNumber,uDqPinVal);  //ECU2 CONNECT TO BUSIN 
-   }		 
-		
-		
-   
-		 
 	
 }
 
@@ -909,17 +805,12 @@ void ksldmn_process(void)
 
 void ddltdgz_process(void)
 {
-	u8 i,j,utemp,uChan,t,uChanSet[4];
-	u8 uFiuCom_Buftemp;
+	u8 i,j,utemp,uChan;
 	
-	t=0;
-	
-	uFiuCom_Buftemp=uFiuCom_buf[12]&0xf;
 	
 	tdreset_process();
 	
-	if((uFiuCom_Buftemp>=1)&&(uFiuCom_Buftemp<4))
-	{	
+	
 	for(i=0;i<9;i++)
 	{
 	if(uFiuCom_buf[i+3]>0)   // channel is selected
@@ -935,29 +826,6 @@ void ddltdgz_process(void)
 		 } 
 	 } 
 	}
- }
-	if (uFiuCom_Buftemp==0x04 )  //ecu-ecu connect
-	 {	
-	 for(i=0;i<9;i++)
-	  {
-	 if(uFiuCom_buf[i+3]>0)   // channel is selected
-	   {
-		 for(j=0;j<8;j++)
-		  {
-			 utemp=(uFiuCom_buf[i+3]>>j)&0x1;   
-			 uChan=8*i+j;  //channel number:0-71
-			 if(utemp==1)
-			 {
-				 uChanSet[t++]=uChan;
-			 }				 
-		  } 
-	   } 
-	  }
-		  if(t==2)
-	    ddlgz_two_set(uChanSet[0],uChanSet[1],uFiuCom_buf[12]);
-	}	
-		
- 
   for (i=0;i<17;i++)
 	{
 	  uFiuCom_buf[i]=0;
@@ -987,7 +855,7 @@ void FiuCom_Process(u8 uType)
   // }	
  // }	 
  
- for (i=0;i<17;i++)
+  for (i=0;i<17;i++)
 	{
 	 uFiuCom_buf[i]=g_FiuByte17Data[i];
 	}
@@ -1001,7 +869,7 @@ void FiuCom_Process(u8 uType)
         case 1:kstdgz_process();break;  //快速通道故障
         case 2:ksldmn_process();break;  //快速漏电模拟
         case 3:ddltdgz_process();break;  //大电流故障
-				case 4:tdreset_process();break;  //
+				case 4:tdreset_process();break;  //?
         default:printf("error\n");break;
       }
 		

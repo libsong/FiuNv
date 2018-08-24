@@ -1282,7 +1282,7 @@ uint8_t McuGetHostConfigInfo(void) //组织数据,仿照老版 fiu 同名函数
     {
         if(nCurErrorType == 0)
         {
-            if (nCurPinNum < 18)	
+            if (nCurPinNum < 64)	
 				P0 = McuFault64BitValuePinSet(P0,nCurPinNum);
 			else
 				P1 = McuFault64BitValuePinSet(P1,nCurPinNum - 64);
@@ -1291,7 +1291,7 @@ uint8_t McuGetHostConfigInfo(void) //组织数据,仿照老版 fiu 同名函数
         }
         else if(nCurErrorType == 1)
         {
-            if (nCurPinNum < 18)	
+            if (nCurPinNum < 64)	
 				P0 = McuFault64BitValuePinSet(P0,nCurPinNum);
 			else
 				P1 = McuFault64BitValuePinSet(P1,nCurPinNum - 64);
@@ -1312,7 +1312,7 @@ uint8_t McuGetHostConfigInfo(void) //组织数据,仿照老版 fiu 同名函数
         }
         else if(nCurErrorType == 2)
         {
-            if (nCurPinNum < 18)	
+            if (nCurPinNum < 64)	
 				P0 = McuFault64BitValuePinSet(P0,nCurPinNum);
 			else
 				P1 = McuFault64BitValuePinSet(P1,nCurPinNum - 64);
@@ -1332,43 +1332,29 @@ uint8_t McuGetHostConfigInfo(void) //组织数据,仿照老版 fiu 同名函数
                 return g_HostConfigErr[18];
             }
         }
-        else if(nCurErrorType == 3) //新版硬件协议不支持
+        else if(nCurErrorType == 3) 
         {
-			P_init();
-            return g_HostConfigErr[2];
-			
-//            if(g_Cmd3Err3Cnt == 0){
-//                setbit(P3_1,nCurPinNum);
-//                g_Cmd3Err3Cnt++;
-//            }
-//            else{
-//                setbit(P3_2,nCurPinNum);
-//                g_Cmd3Err3Cnt = 0;
-//            }
-//            
-//            if(nCurWithLoad == 1){
-//                P0 = clrbit(P3_0,nCurPinNum);
-//            }
-//            else if(nCurWithLoad == 0){
-//                P0 = setbit(P3_0,nCurPinNum);
-//            }
-//            else
-//            {
-//                P_init();
-//                return g_HostConfigErr[20];
-//            }
+			if (nCurPinNum < 64)	
+				P0 = McuFault64BitValuePinSet(P0,nCurPinNum);
+			else
+				P1 = McuFault64BitValuePinSet(P1,nCurPinNum - 64);
+			 
+			P1 = McuFault64BitValuePinClr(P1,8);
+			P1 = McuFault64BitValuePinClr(P1,9);
+			P1 = McuFault64BitValuePinSet(P1,10);
 
-//            if(g_WorkMode == 0)
-//            {
-//                P3_3 = 0x2000;
-//            }
-//            else if(g_WorkMode == 1)
-//            {
-//                P3_3 = 0xB000;
-//            }
-//            else
-//                P3_3 = 0x8002;
-        }
+            if(nCurWithLoad == 1){
+                P1 = McuFault64BitValuePinSet(P1,12); 
+            }
+            else if(nCurWithLoad == 0){
+                P1 = McuFault64BitValuePinClr(P1,12); 
+            }
+            else
+            {
+                P_init();
+                return g_HostConfigErr[18];
+            }
+		}
         else 
         {
             P_init();

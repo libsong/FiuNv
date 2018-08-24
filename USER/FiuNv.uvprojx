@@ -47,7 +47,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>..\RELEASEFILES\</OutputDirectory>
-          <OutputName>FiuNv1-1-1</OutputName>
+          <OutputName>FiuNv1-2-0</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>

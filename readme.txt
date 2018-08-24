@@ -72,6 +72,11 @@ FiuProcess.c 更换
 旧版未考虑带载等
 形成 FiuNv1-1-1
 
+20180815
+FiuProcess.c 更换
+旧版未考虑ecu-load
+形成 FiuNv1-2-0
+
 
 
 
